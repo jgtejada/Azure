@@ -1,14 +1,16 @@
 ﻿## Global Variables
-$ResourceGroupName = "GR-PRO-NEWSEMPLEADO"
+$ResourceGroupName = "XXX"
 $ResourceGroupLocation = "West Europe"
 
+
 ## Network Variables
-$VNetName   = "VNET_LALIGA02"
-#$AddressPrefixVNet = "172.31.0.0/20"
-$SubnetName = "Subred_Aplicaciones"
-#$AddressPrefixSubnet = "172.31.1.0/24"
-$VNetResourceGroupName = "GR_WEBSERVICES_SP"
+$VNetName   = "XXX"
+$AddressPrefixVNet = "172.31.0.0/20"
+$SubnetName = "XXX"
+$AddressPrefixSubnet = "172.31.1.0/24"
+$VNetResourceGroupName = "XXX"
 $PrivateIpAddressRT = "172.30.1.16"
+
 
 ## Image publisher
 $imagePublisher  = "credativ"
@@ -16,21 +18,21 @@ $imageOffer      = "Debian"
 $VersionOSSku    = "9"
 $VMSize          = "Standard_B2s"
 
+
 ## Compute Variables
-$VMNameRT = "MV-PRO-NEWSEMPLEADO"
+$VMNameRT = "XXX"
 $OSDiskNameRT = ($VMNameRT.ToLower()+'-OS')
 $diskSize = "30"
-$diskaccountType = "PremiumLRS"
+$diskaccountType = "StandardLRS"
 $VMResourceGroupNameRT = $ResourceGroupName
 $NICNameRT = $VMNameRT + "-PrimaryNIC"
-#$PIPNameRT = $VMNameRT + "-PIP"
-#$DNSNameRT = $VMNameRT
+$PIPNameRT = $VMNameRT + "-PIP"
+
 
 ## Storage variables
-$RGSADiag = "GR_WEBSERVICES_SP"
-$StorageAccountDiag = "storagecachepro"
+$RGSADiag = "XXX"
+$StorageAccountDiag = "XXX"
 $Type = "Standard_LRS"
-
 
 
 ## Create or check for existing resource group
@@ -48,7 +50,6 @@ else{
     Write-Host "Using existing resource group '$resourceGroupName'" -ForegroundColor Cyan;
 }
 
-<#
 ## Create or check for existing VNet
 $VNet = Get-AzureRmVirtualNetwork -ResourceGroupName $VNetResourceGroupName -Name $VNetName -ErrorAction SilentlyContinue
 if(!$VNet)
@@ -78,16 +79,13 @@ if(!$VNet)
 else{
     Write-Host "Using existing Subnet '$SubnetName'" -ForegroundColor Cyan;
 }
-#>
 
-# Network Script
+## Network Script
 $VNet   = Get-AzureRMVirtualNetwork -Name $VNetName -ResourceGroupName $VNetResourceGroupName
 $Subnet = Get-AzureRMVirtualNetworkSubnetConfig -Name $SubnetName -VirtualNetwork $VNet
-#$GetPIPRT    = Get-AzureRmPublicIPAddress -Name $PIPNameRT -ResourceGroupName $ResourceGroupName
-#$GetPIPSB    = Get-AzureRmPublicIPAddress -Name $PIPNameSB -ResourceGroupName $ResourceGroupName
+$GetPIPRT    = Get-AzureRmPublicIPAddress -Name $PIPNameRT -ResourceGroupName $ResourceGroupName
 
-
-# Create the Interface
+## Create the Interface
 $IPconfigRT    = New-AzureRmNetworkInterfaceIpConfig -Name $VMNameRT -PrivateIpAddressVersion IPv4 -PrivateIpAddress $PrivateIpAddressRT -SubnetId $Subnet.Id #-PublicIpAddressId $GetPIPRT.Id -Primary
 $InterfaceRT   = New-AzureRmNetworkInterface -Name $NICNameRT -ResourceGroupName $ResourceGroupName -Location $ResourceGroupLocation -IpConfiguration $IPconfigRT
 
@@ -108,28 +106,13 @@ else{
 }
 
 
-<#
-## Create a public IP address and specify a DNS name
-$pip = New-AzureRmPublicIpAddress -ResourceGroupName $ResourceGroupName  -Location $ResourceGroupLocation `
-    -AllocationMethod Static -Name $PIPNameRT
+## Create a public IP address
+$pip         = New-AzureRmPublicIpAddress -ResourceGroupName $ResourceGroupName  -Location $ResourceGroupLocation -AllocationMethod Dynamic -Name $PIPNameRT
 $GetPIPRT    = Get-AzureRmPublicIPAddress -Name $PIPNameRT -ResourceGroupName $ResourceGroupName
 
-
-
-# Create an inbound network security group rule for port 3389
-$nsgRuleRDP = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleRDP  -Protocol Tcp `
-    -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
-    -DestinationPortRange 3389 -Access Allow
-
-# Create a network security group
-$nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName jasonvm -Location $location 
-    ` -Name myNetworkSecurityGroup -SecurityRules $nsgRuleRDP
-
-
-# Create a virtual network card and associate with public IP address and NSG
-$IPconfigRT    = New-AzureRmNetworkInterfaceIpConfig -Name $VMNameRT -PrivateIpAddressVersion IPv4 -PrivateIpAddress $PrivateIpAddressRT -SubnetId $Subnet.Id #-PublicIpAddressId $GetPIPRT.Id -Primary
+## Create a virtual network card and associate with public IP address
+$IPconfigRT    = New-AzureRmNetworkInterfaceIpConfig -Name $VMNameRT -PrivateIpAddressVersion IPv4 -PrivateIpAddress $PrivateIpAddressRT -SubnetId $Subnet.Id -PublicIpAddressId $GetPIPRT.Id -Primary
 $InterfaceRT   = New-AzureRmNetworkInterface -Name $NICNameRT -ResourceGroupName $ResourceGroupName -Location $ResourceGroupLocation -IpConfiguration $IPconfigRT
-#>
 
 # Create Credentials
 $cred            = Get-Credential -Message "Introduce el nombre del usuario y la contraseña"
@@ -150,24 +133,14 @@ New-AzureRmVM -ResourceGroupName $ResourceGroupName -Location $ResourceGroupLoca
 
 
 ## Add tags
-$tags = @{PROPIETARIO="Desarrollo";CENTRO_COSTE="Desarrollo"}
+$tags = @{PROPIETARIO="Tajmar";CENTRO_COSTE="Infraestructura"}
 Set-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $VMNameRT -ResourceType "Microsoft.Compute/VirtualMachines" -Tag $tags -Force
-
-<#
-## Disable BootDiagnostics
-$VM = Get-AzureRmVM -DisplayHint Expand -ResourceGroupName $RG -Name $VMName
-Set-AzureRmVMBootDiagnostics -Disable -VM $VM 
-Update-AzureRmVM -ResourceGroupName $RG -VM $VM
 
 
 ## Enable BootDiagnostics
 $VM = Get-AzureRmVM -DisplayHint Expand -ResourceGroupName $ResourceGroupName -Name $VMNameRT
 Set-AzureRmVMBootDiagnostics -VM $VM -Enable -ResourceGroupName $RGSADiag -StorageAccountName $StorageAccountDiag
 Update-AzureRmVM -ResourceGroupName $ResourceGroupName -VM $VM
-#>
 
-#Clear variables
+## Clear variables
 Remove-Variable * -ErrorAction SilentlyContinue
-
-# Stop VM
-#Stop-AzureRmVM -ResourceGroupName $ResourceGroupName -Name $VMNameRT -Force

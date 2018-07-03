@@ -1,0 +1,35 @@
+# Seguir los pasos indicados en pantalla
+azure login
+
+# Comprobar suscripciones del usuario
+azure account list
+
+# Seleccionar suscripción
+azure account set "Pase para Azure"
+ 
+# Configurar modo Resource Manager 
+azure config mode arm
+
+#Crear NSG-FrontEnd 
+azure network nsg create -g TestRG -l westeurope -n NSG-FrontEndCLI 
+
+# Permitir acceso RDP desde internet 
+azure network nsg rule create -g TestRG -a NSG-FrontEndCLI -n rdp-rule -c Allow -p Tcp -r Inbound -y 100 -f Internet -o * -e * -u 3389 
+
+# Acceso puerto 80 desde internet 
+azure network nsg rule create -g TestRG -a NSG-FrontEndCLI -n web-rule -c Allow -p Tcp -r Inbound -y 200 –f Internet -o * -e * -u 80 
+
+# Asignar NSG a Subred FrontEnd 
+azure network vnet subnet set -g TestRG -e TestVNet -n FrontEnd -o NSG-FrontEndCLI 
+
+# Crear NSG_BackEnd 
+azure network nsg create -g TestRG -l westeurope -n NSG-BackEndCLI 
+
+#Permitir acceso al puerto 1433 desde la red de FrontEnd  
+azure network nsg rule create -g TestRG -a NSG-BackEndCLI -n sql-rule -c Allow -p Tcp -r Inbound -y 100 –f 192.168.1.0/24 -o * -e * -u 1433 
+
+# Denegar el acceso a internet
+azure network nsg rule create -g TestRG -a NSG-BackEndCLI -n web-rule -c Deny -p * -r Outbound -y 200 -f * -o * -e Internet -u * 
+
+# Asignar NSG a Subred BackEnd 
+azure network vnet subnet set -g TestRG -e TestVNet -n BackEnd -o NSG-BackEndCLI

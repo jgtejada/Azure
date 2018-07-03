@@ -1,5 +1,5 @@
-# Azure
-Web Platform Installer
+
+# Web Platform Installer
 
 The Microsoft Web Platform Installer - WebPI provides a simplified installation workflow for installing 
 common open source web applications and web platform technologies

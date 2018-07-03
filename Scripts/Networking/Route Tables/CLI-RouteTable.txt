@@ -1,0 +1,36 @@
+# Seguir los pasos indicados en pantalla
+azure login
+
+# Comprobar suscripciones del usuario
+azure account list
+
+# Seleccionar suscripción
+azure account set "Pase para Azure"
+ 
+# Configurar modo Resource Manager 
+azure config mode arm
+
+# Crear una tabla de rutas para la subred front-end 
+azure network route-table create -g TestRG -n UDR-FrontEndCLI -l westeurope
+
+# Crear una ruta en la tabla de rutas creada anteriormente para enviar todo el tráfico destinado a la subred back-end (192.168.2.0/24) a la VM FW1 (192.168.0.4). 
+azure network route-table route create -g TestRG -r UDR-FrontEndCLI -n RouteToBackEnd -a 192.168.2.0/24 -y VirtualAppliance -p 192.168.0.4 
+
+# Asociar la tabla de rutas creada anteriormente a la subred FrontEnd. 
+azure network vnet subnet set -g TestRG -e TestVNet -n FrontEnd -r UDR-FrontEndCLI
+
+# Crear una tabla de rutas para la subred back-end.
+azure network route-table create -g TestRG -n UDR-BackEndCLI -l westeurope
+
+# Crear una ruta en la tabla de rutas creada anteriormente para enviar todo el tráfico destinado a la subred front-end (192.168.1.0/24) a la VM FW1 (192.168.0.4)
+azure network route-table route create -g TestRG -r UDR-BackEndCLI -n RouteToFrontEnd -a 192.168.1.0/24 -y VirtualAppliance -p 192.168.0.4 
+
+#Asociar la tabla de rutas creada anteriormente a la subred BackEnd. 
+azure network vnet subnet set -g TestRG -e TestVNet -n BackEnd -r UDR-BackEndCLI
+
+# Crear NIC y habilitar el reenvío IP en FW1 en la NIC NetworkInterface2 
+azure network nic create -g TestRG -e TestVNet --subnet FrontEnd -n NetworkInterface2
+az network nic create -g TestRG --vnet-name TestVNet --subnet FrontEnd -n NetworkInterface2 --ip-forwarding true
+
+# Comprobar la NIC NetworkInterface2 
+azure network nic show -g TestRG -n NetworkInterface2

@@ -29,7 +29,6 @@ azure network route-table route create -g TestRG -r UDR-BackEndCLI -n RouteToFro
 azure network vnet subnet set -g TestRG -e TestVNet -n BackEnd -r UDR-BackEndCLI
 
 # Crear NIC y habilitar el reenvío IP en FW1 en la NIC NetworkInterface2 
-azure network nic create -g TestRG -e TestVNet --subnet FrontEnd -n NetworkInterface2
 az network nic create -g TestRG --vnet-name TestVNet --subnet FrontEnd -n NetworkInterface2 --ip-forwarding true
 
 # Comprobar la NIC NetworkInterface2 

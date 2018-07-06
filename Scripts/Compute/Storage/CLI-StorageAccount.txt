@@ -1,0 +1,35 @@
+# Seguir los pasos indicados en pantalla
+azure login
+
+# Comprobar suscripciones del usuario
+azure account list
+
+# Seleccionar suscripción
+azure account set "Pase para Azure"
+ 
+# Configurar modo Resource Manager 
+azure config mode arm
+
+# Crear storage account 
+az storage account create -n sastdtestiberocli -g TestRG --access-tier hot --kind StorageV2  -l westeurope --sku Standard_LRS 
+
+# Crear contenedor vhds
+az storage account keys list --account-name sastdtestiberocli --resource-group TestRG --output table
+az storage container create -n vhds --account-name sastdtestiberocli --account-key (seleccionar primary key) --fail-on-exist
+
+# Crear un file share
+az storage account show-connection-string -n sastdtestiberocli -g TestRG
+az storage share create --name filescli --quota 1024 --connection-string “pegar connection-string"
+
+# Crear un directorio en el file share
+az storage directory create --account-name sastdtestiberocli --account-key (seleccionar primary key) --share-name filescli --name directorycli
+
+# Crear un txt y subirlo al directorio
+COPY CON samplecli.txt
+samplecli > ctrl+Z > Enter
+az storage file upload --account-name sastdtestiberocli --account-key (seleccionar primary key) --share-name filescli --source samplecli.txt --path directorycli/samplecli.txt
+az storage file list --account-name sastdtestiberocli --account-key (seleccionar primary key) --share-name filescli --path directorycli --output table
+
+# Descargar txt
+del samplecli.txt
+az storage file download --account-name sastdtestiberocli --account-key (seleccionar primary key) --share-name filescli --path directorycli/samplecli.txt --dest "c:\Users\javier.gonzalez\OneDrive - SoftwareONE\Iberostar\samplecli.txt"

@@ -1,0 +1,14 @@
+# Seguir los pasos indicados en pantalla
+azure login
+
+# Comprobar suscripciones del usuario
+azure account list
+
+# Seleccionar suscripción
+azure account set "Pase para Azure"
+ 
+# Configurar modo Resource Manager 
+azure config mode arm
+
+# Crear VM
+az vm create --resource-group TestGR03 --name VMtest03 --image win2016datacenter --admin-username azureuser --admin-password 123456789qwerty. --no-wait

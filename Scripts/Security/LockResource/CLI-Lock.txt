@@ -1,0 +1,17 @@
+# Seguir los pasos indicados en pantalla
+azure login
+
+# Comprobar suscripciones del usuario
+azure account list
+
+# Seleccionar suscripción
+azure account set "Pase para Azure"
+ 
+# Configurar modo Resource Manager 
+azure config mode arm
+
+# Añadir bloqueo "CanNotDelete" a la VM
+az lock create --name LockVMCLI --lock-type CanNotDelete --resource-group TestRG --resource-name (VMName) --resource-type Microsoft.Compute/virtualMachines
+
+# Eliminar el blqoueo
+az lock delete --ids (LockID)

@@ -1,0 +1,17 @@
+# Seguir los pasos indicados en pantalla
+azure login
+
+# Comprobar suscripciones del usuario
+azure account list
+
+# Seleccionar suscripción
+azure account set "Pase para Azure"
+ 
+# Configurar modo Resource Manager 
+azure config mode arm
+
+# Crear Grupo de recursos (si no existe) 
+azure group create -n TestRG -l westeurope
+
+# Asignar tags a VM
+az vm update --resource-group TestRG --name (VMName) --set tags.Propietario=Iberostar tags.Centro_Coste=Sistemas

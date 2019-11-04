@@ -1,0 +1,25 @@
+CLI de Azure en Windows
+https://docs.microsoft.com/es-es/cli/azure/install-azure-cli-windows?view=azure-cli-latest
+
+CLI de Azure en macOS
+https://docs.microsoft.com/es-es/cli/azure/install-azure-cli-macos?view=azure-cli-latest
+
+
+
+CLI de Azure en Linux
+CLI de Azure con apt Debian o Ubuntu
+https://docs.microsoft.com/es-es/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+
+Instalación con yum en RHEL, Fedora o CentOS
+https://docs.microsoft.com/es-es/cli/azure/install-azure-cli-yum?view=azure-cli-latest
+
+Instalación con zypper en openSUSE o SLE
+https://docs.microsoft.com/es-es/cli/azure/install-azure-cli-zypper?view=azure-cli-latest
+
+Instalación desde un script
+https://docs.microsoft.com/es-es/cli/azure/install-azure-cli-linux?view=azure-cli-latest
+
+
+
+CLI de Azure en Docker
+https://docs.microsoft.com/es-es/cli/azure/run-azure-cli-docker?view=azure-cli-latest

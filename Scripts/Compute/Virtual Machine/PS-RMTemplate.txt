@@ -1,0 +1,29 @@
+﻿# Logarse en la suscripción desde una ventana de PowerShell 
+Connect-AzAccount
+
+# Seleccionar subscripción 
+Get-AzSubscription
+Get-AzSubscription –SubscriptionName “Acceso a Azure Active Directory(Converted to EA)” | Select-AzSubscription
+
+# Crear variable con Región y otra con Resource Group 
+$locName = “westeurope” 
+$rgName = "RG-JSON"
+
+# Crear grupo de recursos
+New-AzResourceGroup -Name $rgName -Location $locName
+
+# Crear cuenta de almacenamiento
+$storageName = "st" + (Get-Random)
+New-AzStorageAccount -ResourceGroupName $rgName -AccountName $storageName -Location $locName -SkuName "Standard_LRS" -Kind Storage
+$accountKey = (Get-AzStorageAccountKey -ResourceGroupName $rgName -Name $storageName).Value[0]
+$context = New-AzStorageContext -StorageAccountName $storageName -StorageAccountKey $accountKey 
+New-AzStorageContainer -Name "templates" -Context $context -Permission Container
+
+# Subir plantillas
+Set-AzStorageBlobContent -File "C:\Users\javier.gonzalez\SharePoint\TS Spain - Documents\Proyectos 2019\San Lucar\JSON\CreateVMTemplate.json" -Context $context -Container templates
+Set-AzStorageBlobContent -File "C:\Users\javier.gonzalez\SharePoint\TS Spain - Documents\Proyectos 2019\San Lucar\JSON\Parameters.json" -Context $context -Container templates
+
+# Crear VM
+$templatePath = "https://" + $storageName + ".blob.core.windows.net/templates/CreateVMTemplate.json"
+$parametersPath = "https://" + $storageName + ".blob.core.windows.net/templates/Parameters.json"
+New-AzResourceGroupDeployment -ResourceGroupName $rgName -Name "JSONDeployment" -TemplateUri $templatePath -TemplateParameterUri $parametersPath

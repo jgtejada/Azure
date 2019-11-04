@@ -1,0 +1,17 @@
+﻿# Logarse en la suscripción desde una ventana de PowerShell
+Connect-AzAccount
+
+# Comprobar suscripciones del usuario
+Get-AzSubscription
+
+# Seleccionar subscripción
+Get-AzSubscription –SubscriptionName “Acceso a Azure Active Directory(Converted to EA)” | Select-AzSubscription
+
+# Crear Grupo de recursos (si no existe) 
+New-AzResourceGroup -Name RG-MD -Location westeurope
+
+# Almacenar configuración de disco en variable
+$diskConfig = New-AzDiskConfig -SkuName ‘StandardSSD_LRS‘ -Location westeurope -CreateOption Empty -DiskSizeGB 1
+
+# Creamos el disco administrado
+New-AzDisk -DiskName MDSL01 -Disk $diskConfig -ResourceGroupName RG-MD

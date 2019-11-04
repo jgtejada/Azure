@@ -1,0 +1,21 @@
+﻿# Logarse en la suscripción desde una ventana de PowerShell
+Connect-AzAccount
+
+# Comprobar suscripciones del usuario
+Get-AzSubscription
+
+# Seleccionar subscripción
+Get-AzSubscription –SubscriptionName “Enterprise Dev/Test” | Select-AzSubscription
+
+# Crear Grupo de recursos 
+New-AzResourceGroup -Name RG-VM -Location westeurope
+
+# Asignar tags a VM
+$tags = @{Departamento="Sistemas";Centro_Coste="001";FechaExpiracion="05042019"}
+$rgName = “RG-VM-05-asr”
+$vmName = “VMTESTSL05” 
+Set-AzureRmResource -ResourceGroupName $rgName -Name $vmName -ResourceType "Microsoft.Compute/VirtualMachines" -Tag $tags -Force
+
+# Set-AzResource -ResourceGroupName $rgName -Name $vmName -ResourceType "Microsoft.Network/VirtualNetworks" -Tag $tags -Force
+
+# (Get-AzResource -Tag @{ Centro_Coste="001"}).Name

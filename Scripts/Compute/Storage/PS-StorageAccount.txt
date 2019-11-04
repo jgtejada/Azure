@@ -1,0 +1,51 @@
+﻿# Logarse en la suscripción desde una ventana de PowerShell
+Connect-AzAccount
+
+# Comprobar suscripciones del usuario
+Get-AzSubscription
+
+# Seleccionar subscripción
+Get-AzSubscription –SubscriptionName “Acceso a Azure Active Directory(Converted to EA)” | Select-AzSubscription
+
+# Crear Grupo de recursos (si no existe) 
+New-AzResourceGroup -Name RG-SA-01 -Location westeurope
+
+# Crear Storage Account TestStorageAccount 
+New-AzStorageAccount -ResourceGroupName RG-SA-01 -AccountName sastdtestsl01 -Type Standard_LRS -Location westeurope
+
+# Almacenar el objeto de cuenta de almacenamiento en una variable 
+$sa = Get-AzStorageAccount -ResourceGroupName RG-SA-01 -AccountName sastdtestsl01
+
+# Crear blob en la cuenta de almacenamiento 
+New-AzStorageContainer -Name vhds -Context $sa.Context -Permission blob
+
+
+
+##########################################################################
+##########################################################################
+
+# Crear fileshare
+$AccountKey    = (Get-AzStorageAccountKey -StorageAccountName sastdtestsl01 -ResourceGroupName RG-SA-01).Value[0]
+$ctx           = New-AzStorageContext -StorageAccountName sastdtestsl01 -StorageAccountKey $AccountKey
+New-AzStorageShare -Name sanlucarshare01 -Context $ctx.Context
+Set-AzStorageShareQuota -ShareName sanlucarshare01 -Quota 1024 -Context $ctx.Context
+
+# Crear directorio
+New-AzStorageDirectory -Context $ctx.Context -ShareName sanlucarshare01 -Path SanLucarDirectory01
+
+# Escribir la fecha en un txt
+Get-Date | Out-File -FilePath "C:\Users\javier.gonzalez\SharePoint\TS Spain - Documents\Proyectos 2019\San Lucar\Test.txt" -Force
+
+# Subir el txt a nuestro direcotorio creado
+Set-AzStorageFileContent -Context $ctx.Context -ShareName sanlucarshare01 -Source "C:\Users\javier.gonzalez\SharePoint\TS Spain - Documents\Proyectos 2019\San Lucar\Test.txt" -Path "SanLucarDirectory01\Test.txt"
+
+# Borrar si hay un archivo existe llamado Test.txt
+Remove-Item -Path "C:\Users\javier.gonzalez\Desktop\Test.txt" -Force -ErrorAction SilentlyContinue
+Get-AzStorageFileContent -Context $ctx.Context -ShareName sanlucarshare01 -Path "SanLucarDirectory01\Test.txt" -Destination "C:\Users\javier.gonzalez\Desktop\Test.txt"v
+
+$acctKey = ConvertTo-SecureString -String "hPok7CNEEHshyifsaLzyY3jMH3YfemFfZZ4GS/gX41+okHRSm0lm66LciCIr3w/jFxoh+aAN88/Zz75mi/Usqw==" -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential -ArgumentList "Azure\sastdtestsl01", $acctKey
+New-PSDrive -Name S -PSProvider FileSystem -Root "\\sastdtestsl01.file.core.windows.net\sanlucarshare01" -Credential $credential -Persist
+
+# Eliminar grupo de recursos con dependencias
+Remove-AzResourceGroup -Name RG-SA-01

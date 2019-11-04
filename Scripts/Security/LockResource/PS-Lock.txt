@@ -1,0 +1,16 @@
+﻿# Logarse en la suscripción desde una ventana de PowerShell
+Connect-AzAccount
+
+# Comprobar suscripciones del usuario
+Get-AzSubscription
+
+# Seleccionar subscripción
+Get-AzSubscription –SubscriptionName “Enterprise Dev/Test” | Select-AzSubscription
+
+
+# Añadir bloqueo "CanNotDelete" a la VM -
+New-AzResourceLock -LockLevel CanNotDelete -LockName LockVMPS -ResourceName VMTESTSL05 -ResourceType Microsoft.Compute/virtualMachines -ResourceGroupName RG-VM-05-asr
+
+# Eliminar el blqoueo
+$lockId = (Get-AzResourceLock -ResourceGroupName RG-VM-05-asr -ResourceName VMTESTSL05 -ResourceType Microsoft.Compute/virtualMachines).LockId
+Remove-AzResourceLock -LockId $lockId

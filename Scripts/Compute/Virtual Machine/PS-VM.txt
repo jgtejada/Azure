@@ -1,0 +1,63 @@
+﻿# Logarse en la suscripción desde una ventana de PowerShell 
+Connect-AzAccount
+
+# Seleccionar subscripción 
+Get-AzSubscription 
+Get-AzSubscription –SubscriptionName “Enterprise Dev/Test” | Select-AzSubscription
+
+# Crear variable con Región y otra con Resource Group 
+$locName = “westeurope” 
+$rgName = “RG-VM-05”
+
+# Crear Resource group 
+New-AzResourceGroup -Name $rgName -Location $locName
+
+# Comprobar que el nombre que se va a poner al Storage Account es único 
+$stName = “sastdtestsldiag05”
+
+# Crear cuenta de Almacenamiento para boot diagnostics
+$storageAcc = New-AzStorageAccount -ResourceGroupName $rgName -Name $stName -SkuName “Standard_LRS” -Kind "Storage” -Location $locName
+
+# Crear subred FrontEnd 
+$subnetName = “FrontEnd05”
+$singleSubnet = New-AzVirtualNetworkSubnetConfig -Name $subnetName -AddressPrefix 192.165.1.0/24
+
+# Crear la red virtual y asociar la subred 
+$vnetName = “VNET-VM05”
+$vnet = New-AzVirtualNetwork -Name $vnetName -ResourceGroupName $rgName -Location $locName -AddressPrefix 192.165.0.0/16 -Subnet $singleSubnet 
+ 
+# Crear IP Pública 
+$ipName = "VM05-PIP"
+$pip = New-AzPublicIpAddress -Name $ipName -ResourceGroupName $rgName -Location $locName -AllocationMethod Dynamic
+
+# Crear interfaz de red 
+$nicName = “VM05-PrimaryNIC”
+$nic = New-AzNetworkInterface -Name $nicName -ResourceGroupName $rgName -Location $locName -SubnetId $vnet.Subnets[0].Id -PublicIpAddressId $pip.Id 
+
+# Establecer usuario y contraseña administrador del equipo 
+$cred = Get-Credential -Message “Escribir el nombre del usuario administrador del equipo”
+
+# Crear nombre y configuración de la VM 
+$vmName = “VMTESTSL05” 
+$vm = New-AzVMConfig -VMName $vmName -VMSize “Standard_B2s”
+
+# Definir la imagen que se usará para la VM (imágenes disponibles) 
+$vm = Set-AzVMSourceImage -VM $vm -PublisherName MicrosoftWindowsServer -Offer WindowsServer -Skus 2016-Datacenter-smalldisk -Version "latest" 
+
+# Agregar interfaz de red 
+$vm = Add-AzVMNetworkInterface -VM $vm -Id $nic.Id 
+
+# Definir configuración para el SO 
+$vm = Set-AzVMOperatingSystem -VM $vm -Windows -ComputerName $vmName -Credential $cred -ProvisionVMAgent -EnableAutoUpdate
+
+# Escribir nombre de disco y agregar información a la configuración
+$diskName =  "VMTESTSL05-SO"
+$diskSize = “70"
+$diskaccountType = ‘StandardSSD_LRS‘
+$vm = Set-AzVMOSDisk -CreateOption fromImage -VM $vm -DiskSizeInGB $diskSize -Name $diskName -StorageAccountType $diskaccountType -Windows
+
+# Por último, crear la VM 
+New-AzVM -ResourceGroupName $rgName -Location $locName -VM $vm
+
+# Eliminar grupo de recursos con dependencias
+# Remove-AzResourceGroup -Name RG-VM-05 -Force

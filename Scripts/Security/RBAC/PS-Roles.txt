@@ -1,0 +1,45 @@
+﻿# Logarse en la suscripción desde una ventana de PowerShell 
+Connect-AzAccount
+
+# Comprobar suscripciones del usuario
+Get-AzSubscription
+
+# Seleccionar subscripción
+Get-AzSubscription –SubscriptionName “Acceso a Azure Active Directory(Converted to EA)” | Select-AzSubscription
+
+# Lista roles disponibles en la suscripción
+Get-AzRoleDefinition | FT Name, IsCustom
+
+# Lista de roles customizados en la suscripción
+Get-AzRoleDefinition | ? {$_.IsCustom -eq $true} | FT Name, IsCustom
+
+# Crear role customizado a partir del rol "Virtual Machine Contributor"
+$role = Get-AzRoleDefinition "Virtual Machine Contributor"
+$role.Id = $null
+$role.Name = "Virtual Machine Operator Custom"
+$role.Description = "Can monitor and restart virtual machines."
+$role.Actions.Clear()
+$role.Actions.Add("Microsoft.Storage/*/read")
+$role.Actions.Add("Microsoft.Network/*/read")
+$role.Actions.Add("Microsoft.Compute/*/read")
+$role.Actions.Add("Microsoft.Compute/virtualMachines/start/action")
+$role.Actions.Add("Microsoft.Compute/virtualMachines/restart/action")
+$role.Actions.Add("Microsoft.Authorization/*/read")
+$role.Actions.Add("Microsoft.Resources/subscriptions/resourceGroups/read")
+$role.Actions.Add("Microsoft.Insights/alertRules/*")
+$role.Actions.Add("Microsoft.Support/*")
+$role.AssignableScopes.Clear()
+$role.AssignableScopes.Add("/subscriptions/6fde2222-2707-4a8c-91f7-bec1042b528d")
+New-AzRoleDefinition -Role $role
+
+# Lista roles disponibles en la suscripción
+Get-AzRoleDefinition | FT Name, IsCustom
+
+# Lista de roles customizados en la suscripción
+Get-AzRoleDefinition | ? {$_.IsCustom -eq $true} | FT Name, IsCustom
+
+# Eliminar rol
+Remove-AzRoleDefinition -Name "Virtual Machine Operator Custom"
+
+# Asignar rol a un usuario
+New-AzRoleAssignment -SignInName <email of user> -RoleDefinitionName $role.Name -ResourceGroupName JSON

@@ -1,0 +1,6 @@
+﻿$policydefinitions = "https://raw.githubusercontent.com/Azure/azure-policy/master/samples/PolicyInitiatives/multiple-billing-tags/azurepolicyset.definitions.json"
+$policysetparameters = "https://raw.githubusercontent.com/Azure/azure-policy/master/samples/PolicyInitiatives/multiple-billing-tags/azurepolicyset.parameters.json"
+
+$policyset= New-AzPolicySetDefinition -Name "multiple-billing-tags" -DisplayName "Billing Tags Policy Initiative" -Description "Specify cost Center tag and product name tag" -PolicyDefinition $policydefinitions -Parameter $policysetparameters
+
+New-AzPolicyAssignment -PolicySetDefinition $policyset -Name "Billing Tags Policy Initiative" -Scope "/subscriptions/0d893838-7933-413c-8ffe-e1adcfdd47a1"  -costCenterValue "SWO" -productNameValue "TEST"

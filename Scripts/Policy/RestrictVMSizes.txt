@@ -1,0 +1,7 @@
+﻿## Define the Azure Policy
+$Policy = New-AzPolicyDefinition -Name "RestrictVMSizes" -Description “Policy to restrict VM sizes to predefined SKUs” -Policy "C:\Users\javier.gonzalez\OneDrive - SoftwareONE\Iberostar\Scripts\Policy\RestrictAzureVMs.json"
+
+Get-AzPolicyDefinition -Name RestrictVMSizes
+
+## Assign the Policy to a Subscription
+New-AzPolicyAssignment -Name RestrictVMsizes -PolicyDefinition $Policy -Scope "/subscriptions/0d893838-7933-413c-8ffe-e1adcfdd47a1"

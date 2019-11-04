@@ -1,0 +1,4 @@
+﻿$definition = New-AzPolicyDefinition -Name "allowed-locations" -DisplayName "Allowed locations" -description "This policy enables you to restrict the locations your organization can specify when deploying resources. Use to enforce your geo-compliance requirements." -Policy 'https://raw.githubusercontent.com/Azure/azure-policy/master/samples/built-in-policy/allowed-locations/azurepolicy.rules.json' -Parameter 'https://raw.githubusercontent.com/Azure/azure-policy/master/samples/built-in-policy/allowed-locations/azurepolicy.parameters.json' -Mode All
+$definition
+$assignment = New-AzPolicyAssignment -Name "Allowed locations" -Scope "/subscriptions/0d893838-7933-413c-8ffe-e1adcfdd47a1"  -listOfAllowedLocations "West Europe" -PolicyDefinition $definition
+$assignment

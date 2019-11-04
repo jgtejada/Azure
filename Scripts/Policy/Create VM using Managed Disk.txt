@@ -1,0 +1,4 @@
+﻿$definition = New-AzPolicyDefinition -Name "use-managed-disk-vm" -DisplayName "Create VM using Managed Disk" -description "Create VM using Managed Disk" -Policy 'https://raw.githubusercontent.com/Azure/azure-policy/master/samples/Compute/use-managed-disk-vm/azurepolicy.rules.json' -Parameter 'https://raw.githubusercontent.com/Azure/azure-policy/master/samples/Compute/use-managed-disk-vm/azurepolicy.parameters.json' -Mode All
+$definition
+$assignment = New-AzPolicyAssignment -Name "Create VM using Managed Disk" -Scope "/subscriptions/0d893838-7933-413c-8ffe-e1adcfdd47a1"  -PolicyDefinition $definition
+$assignment

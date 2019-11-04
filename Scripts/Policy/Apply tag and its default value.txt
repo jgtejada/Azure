@@ -1,0 +1,4 @@
+﻿$definition = New-AzPolicyDefinition -Name "apply-default-tag-value" -DisplayName "Apply tag and its default value" -description "Applies a required tag and its default value if it is not specified by the user." -Policy 'https://raw.githubusercontent.com/Azure/azure-policy/master/samples/built-in-policy/apply-default-tag-value/azurepolicy.rules.json' -Parameter 'https://raw.githubusercontent.com/Azure/azure-policy/master/samples/built-in-policy/apply-default-tag-value/azurepolicy.parameters.json' -Mode All
+$definition
+$assignment = New-AzPolicyAssignment -Name "Apply tag and its default value" -Scope "/subscriptions/0d893838-7933-413c-8ffe-e1adcfdd47a1"  -tagName "PROPIETARIO" -tagValue "SWOS" -PolicyDefinition $definition
+$assignment
